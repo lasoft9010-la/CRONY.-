@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CRONY — Handkerchief BMS</title>
+<meta name="theme-color" content="#2B3A55">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CRONY">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232B3A55'/%3E%3Ctext x='50' y='64' font-family='Georgia,serif' font-size='36' fill='%23FAF6EE' text-anchor='middle'%3ECY%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232B3A55'/%3E%3Ctext x='50' y='64' font-family='Georgia,serif' font-size='36' fill='%23FAF6EE' text-anchor='middle'%3ECY%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22CRONY%22%2C%22short_name%22%3A%22CRONY%22%2C%22display%22%3A%22standalone%22%2C%22start_url%22%3A%22.%22%2C%22background_color%22%3A%22%23FAF6EE%22%2C%22theme_color%22%3A%22%232B3A55%22%7D">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ivory:#FAF6EE; --ink:#26282B; --indigo:#2B3A55; --thread:#A8384A;
+  --sage:#7C8B6F; --line:#E4DCCB; --card:#FFFFFF; --muted:#7A7566;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --ivory:#1B1C1E; --ink:#EDE9DF; --card:#25262A; --line:#3A3B3E; --muted:#A19C8E; }
+}
+:root[data-theme="dark"]{ --ivory:#1B1C1E; --ink:#EDE9DF; --card:#25262A; --line:#3A3B3E; --muted:#A19C8E; }
+*{box-sizing:border-box}
+html{height:100%; scroll-padding-top:env(safe-area-inset-top,0px);}
+body{margin:0; min-height:100%; background:var(--ivory); color:var(--ink); font-family:Inter,sans-serif;}
+h1,h2,h3{font-family:Fraunces,serif; font-weight:700; margin:0 0 4px;}
+header.top{position:sticky; top:0; z-index:10; background:var(--indigo); color:#fff; padding:14px 18px; padding-top:calc(14px + env(safe-area-inset-top,0px)); display:flex; justify-content:space-between; align-items:center;}
+header.top .brand{font-family:Fraunces,serif; font-size:20px;}
+header.top .sub{font-size:11px; opacity:.7;}
+nav.tabs{display:flex; overflow-x:auto; gap:4px; background:var(--card); border-bottom:1px solid var(--line); padding:6px 8px; position:sticky; top:56px; z-index:9;}
+nav.tabs button{flex:none; padding:8px 14px; border:none; background:transparent; color:var(--muted); font-size:13.5px; border-radius:8px; cursor:pointer; white-space:nowrap;}
+nav.tabs button.active{background:var(--indigo); color:#fff;}
+main{padding:16px; max-width:960px; margin:0 auto 60px;}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:18px;}
+.stat{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px;}
+.stat .n{font-family:Fraunces,serif; font-size:22px;}
+.stat .l{font-size:12px; color:var(--muted);}
+.panel{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; margin-bottom:16px;}
+table{width:100%; border-collapse:collapse; font-size:13.5px;}
+th,td{text-align:left; padding:8px 6px; border-bottom:1px solid var(--line);}
+th{color:var(--muted); font-weight:600; font-size:12px;}
+.tblwrap{overflow-x:auto;}
+input,select,textarea{width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:7px; background:var(--ivory); color:var(--ink); font-size:14px; font-family:inherit;}
+label{font-size:12px; color:var(--muted); display:block; margin:8px 0 3px;}
+.row{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px;}
+button.btn{background:var(--indigo); color:#fff; border:none; padding:9px 16px; border-radius:8px; font-size:14px; cursor:pointer; font-weight:600;}
+button.btn.thread{background:var(--thread);}
+button.btn.ghost{background:transparent; color:var(--indigo); border:1px solid var(--indigo);}
+button.small{padding:5px 10px; font-size:12px; border-radius:6px; border:1px solid var(--line); background:transparent; color:var(--ink); cursor:pointer;}
+.empty{text-align:center; padding:30px 10px; color:var(--muted);}
+.badge{padding:2px 8px; border-radius:20px; font-size:11px; font-weight:600;}
+.badge.low{background:#F6D9DC; color:var(--thread);}
+.badge.ok{background:#DCE6D6; color:#3E5233;}
+.toast{position:fixed; bottom:calc(20px + env(safe-area-inset-bottom,0px)); left:50%; transform:translateX(-50%); background:var(--ink); color:var(--ivory); padding:10px 18px; border-radius:8px; font-size:13.5px; opacity:0; transition:opacity .25s; pointer-events:none; z-index:99;}
+.toast.show{opacity:1;}
+.itemrow{display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:8px; align-items:end; margin-bottom:8px;}
+.bar{height:8px; background:var(--line); border-radius:4px; overflow:hidden; margin-top:4px;}
+.bar i{display:block; height:100%; background:var(--sage);}
+.iconBtn{width:34px; height:34px; border-radius:50%; border:1px solid rgba(255,255,255,.4); background:transparent; color:#fff; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex:none;}
+</style>
+</head>
+<body>
+<header class="top">
+  <div><div class="brand">CRONY</div><div class="sub" id="bizname">Handkerchief Manufacturing & Wholesale</div></div>
+  <button class="iconBtn" id="themeBtn" onclick="cycleTheme()">🌓</button>
+</header>
+<nav class="tabs" id="tabs"></nav>
+<main id="main"></main>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='lasoft_bms_v1';
+let db = JSON.parse(localStorage.getItem(KEY)||'null') || seed();
+let tab='dashboard';
+
+function save(){ localStorage.setItem(KEY, JSON.stringify(db)); }
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1800); }
+function uid(){ return Math.random().toString(36).slice(2,9); }
+function fmt(n){ return (db.currency||'Rs.')+' '+Number(n||0).toLocaleString(undefined,{maximumFractionDigits:2}); }
+function today(){ return new Date().toISOString().slice(0,10); }
+
+function seed(){
+  return {
+    currency:'Rs.', bizName:'CRONY Handkerchiefs',
+    customers:[], products:[], materials:[], production:[], orders:[], expenses:[]
+  };
+}
+
+// ---------- calculations ----------
+function customerStats(cid){
+  const os = db.orders.filter(o=>o.customerId===cid);
+  const totalSales = os.reduce((s,o)=>s+orderGrandTotal(o),0);
+  const totalPaid = os.reduce((s,o)=>s+(o.paid||0),0);
+  return {orders:os.length, pending:os.filter(o=>o.status!=='Delivered'&&o.status!=='Cancelled').length,
+    delivered:os.filter(o=>o.status==='Delivered').length, totalSales, totalPaid, outstanding: totalSales-totalPaid};
+}
+function orderSubtotal(o){ return o.items.reduce((s,it)=>s+(it.qty*it.price - (it.discount||0)),0); }
+function orderGrandTotal(o){ return orderSubtotal(o) - (o.discount||0) + (o.transport||0) + (o.otherCharges||0); }
+function orderCost(o){ return o.items.reduce((s,it)=>{ const p=db.products.find(x=>x.id===it.productId); return s+(p?p.prodCost:0)*it.qty; },0); }
+function orderProfit(o){ return orderGrandTotal(o) - orderCost(o) - (o.transport||0); }
+
+function todayExpenses(d){ return db.expenses.filter(e=>e.date===d).reduce((s,e)=>s+Number(e.amount),0); }
+function monthKey(d){ return d.slice(0,7); }
+
+// ---------- render shell ----------
+const TABS=[['dashboard','🏠 Dashboard'],['customers','🏪 Customers'],['products','🧵 Products'],['materials','🧶 Materials'],['production','🏭 Production'],['orders','🧾 Orders'],['expenses','💸 Expenses'],['backup','💾 Backup']];
+function renderTabs(){
+  document.getElementById('tabs').innerHTML = TABS.map(([k,l])=>`<button class="${tab===k?'active':''}" onclick="setTab('${k}')">${l}</button>`).join('');
+}
+function setTab(t){ tab=t; render(); }
+function render(){
+  renderTabs();
+  document.getElementById('bizname').textContent = db.bizName;
+  const m = document.getElementById('main');
+  if(tab==='dashboard') m.innerHTML = viewDashboard();
+  if(tab==='customers') m.innerHTML = viewCustomers();
+  if(tab==='products') m.innerHTML = viewProducts();
+  if(tab==='materials') m.innerHTML = viewMaterials();
+  if(tab==='production') m.innerHTML = viewProduction();
+  if(tab==='orders') m.innerHTML = viewOrders();
+  if(tab==='expenses') m.innerHTML = viewExpenses();
+  if(tab==='backup') m.innerHTML = viewBackup();
+}
+
+// ---------- Dashboard ----------
+function viewDashboard(){
+  const td = today(); const mk = monthKey(td);
+  const todaySales = db.orders.filter(o=>o.date===td).reduce((s,o)=>s+orderGrandTotal(o),0);
+  const monthOrders = db.orders.filter(o=>monthKey(o.date)===mk);
+  const monthSales = monthOrders.reduce((s,o)=>s+orderGrandTotal(o),0);
+  const monthExp = db.expenses.filter(e=>monthKey(e.date)===mk).reduce((s,e)=>s+Number(e.amount),0);
+  const monthProfit = monthOrders.reduce((s,o)=>s+orderProfit(o),0) - monthExp;
+  const pending = db.orders.filter(o=>o.status!=='Delivered'&&o.status!=='Cancelled').length;
+  const lowStock = db.products.filter(p=>p.stock<=p.minStock);
+  const lowMat = db.materials.filter(mt=>mt.qty<=mt.minStock);
+  const outstanding = db.customers.reduce((s,c)=>s+customerStats(c.id).outstanding,0);
+  const maxSale = Math.max(1, ...last7Sales());
+  return `
+  <div class="grid">
+    <div class="stat"><div class="n">${fmt(todaySales)}</div><div class="l">Today's Sales</div></div>
+    <div class="stat"><div class="n">${pending}</div><div class="l">Pending Orders</div></div>
+    <div class="stat"><div class="n">${fmt(monthSales)}</div><div class="l">Monthly Sales</div></div>
+    <div class="stat"><div class="n">${fmt(monthExp)}</div><div class="l">Monthly Expenses</div></div>
+    <div class="stat"><div class="n">${fmt(monthProfit)}</div><div class="l">Monthly Profit</div></div>
+    <div class="stat"><div class="n">${fmt(outstanding)}</div><div class="l">Outstanding Payments</div></div>
+  </div>
+  <div class="panel">
+    <h3>Sales — last 7 days</h3>
+    ${last7Sales().map((v,i)=>`<div style="font-size:12px;color:var(--muted);display:flex;justify-content:space-between;margin-top:6px"><span>${dayLabel(i)}</span><span>${fmt(v)}</span></div><div class="bar"><i style="width:${(v/maxSale*100)||0}%"></i></div>`).join('')}
+  </div>
+  ${(lowStock.length||lowMat.length)?`<div class="panel"><h3>⚠️ Low Stock</h3>
+    ${lowStock.map(p=>`<div>${p.name}: <b>${p.stock}</b> ${p.unit} (min ${p.minStock})</div>`).join('')}
+    ${lowMat.map(mt=>`<div>${mt.name}: <b>${mt.qty}</b> ${mt.unit} (min ${mt.minStock})</div>`).join('')}
+  </div>`:''}
+  <div class="panel">
+    <h3>Quick Actions</h3>
+    <div class="row">
+      <button class="btn" onclick="setTab('orders')">➕ New Order</button>
+      <button class="btn thread" onclick="setTab('production')">🏭 Add Production</button>
+      <button class="btn ghost" onclick="setTab('expenses')">💸 Add Expense</button>
+      <button class="btn ghost" onclick="setTab('customers')">🏪 Add Customer</button>
+    </div>
+  </div>`;
+}
+function dayLabel(i){ const d=new Date(); d.setDate(d.getDate()-(6-i)); return d.toLocaleDateString(undefined,{weekday:'short'}); }
+function last7Sales(){
+  const arr=[]; for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const ds=d.toISOString().slice(0,10);
+    arr.push(db.orders.filter(o=>o.date===ds).reduce((s,o)=>s+orderGrandTotal(o),0)); }
+  return arr;
+}
+
+// ---------- Customers ----------
+function viewCustomers(){
+  return `<div class="panel">
+    <h3>Add Wholesale Shop</h3>
+    <div class="row">
+      <div><label>Shop Name</label><input id="cf_name"></div>
+      <div><label>Owner Name</label><input id="cf_owner"></div>
+      <div><label>Phone</label><input id="cf_phone"></div>
+      <div><label>City</label><input id="cf_city"></div>
+      <div><label>Customer Code</label><input id="cf_code"></div>
+      <div><label>Credit Limit</label><input id="cf_credit" type="number"></div>
+    </div>
+    <div style="margin-top:12px"><button class="btn" onclick="addCustomer()">Save Shop</button></div>
+  </div>
+  <div class="panel"><h3>Shops (${db.customers.length})</h3>
+  ${db.customers.length===0?`<div class="empty">No Customers Yet<br>Add your first wholesale shop.</div>`:
+  `<div class="tblwrap"><table><tr><th>Shop</th><th>City</th><th>Orders</th><th>Sales</th><th>Outstanding</th></tr>
+  ${db.customers.map(c=>{const s=customerStats(c.id); return `<tr><td><b>${c.name}</b><br><span style="color:var(--muted);font-size:12px">${c.phone||''}</span></td><td>${c.city||'-'}</td><td>${s.orders}</td><td>${fmt(s.totalSales)}</td><td>${fmt(s.outstanding)}</td></tr>`}).join('')}
+  </table></div>`}
+  </div>`;
+}
+function addCustomer(){
+  const name=document.getElementById('cf_name').value.trim();
+  if(!name){ toast('Shop name required'); return; }
+  db.customers.push({id:uid(), name, owner:document.getElementById('cf_owner').value, phone:document.getElementById('cf_phone').value,
+    city:document.getElementById('cf_city').value, code:document.getElementById('cf_code').value, creditLimit:Number(document.getElementById('cf_credit').value||0)});
+  save(); toast('Shop added'); render();
+}
+
+// ---------- Products ----------
+function viewProducts(){
+  return `<div class="panel"><h3>Add Handkerchief Product</h3>
+  <div class="row">
+    <div><label>Product Name</label><input id="pf_name"></div>
+    <div><label>SKU</label><input id="pf_sku"></div>
+    <div><label>Unit</label><input id="pf_unit" value="pcs"></div>
+    <div><label>Production Cost</label><input id="pf_cost" type="number"></div>
+    <div><label>Wholesale Price</label><input id="pf_price" type="number"></div>
+    <div><label>Opening Stock</label><input id="pf_stock" type="number" value="0"></div>
+    <div><label>Min Stock</label><input id="pf_min" type="number" value="50"></div>
+  </div>
+  <div style="margin-top:12px"><button class="btn" onclick="addProduct()">Save Product</button></div>
+  </div>
+  <div class="panel"><h3>Products (${db.products.length})</h3>
+  ${db.products.length===0?`<div class="empty">No Products Yet<br>Add your first handkerchief product.</div>`:
+  `<div class="tblwrap"><table><tr><th>Product</th><th>Cost</th><th>Price</th><th>Stock</th></tr>
+  ${db.products.map(p=>`<tr><td><b>${p.name}</b><br><span style="color:var(--muted);font-size:12px">${p.sku||''}</span></td><td>${fmt(p.prodCost)}</td><td>${fmt(p.price)}</td><td>${p.stock} ${p.unit} ${p.stock<=p.minStock?'<span class="badge low">Low</span>':'<span class="badge ok">OK</span>'}</td></tr>`).join('')}
+  </table></div>`}</div>`;
+}
+function addProduct(){
+  const name=document.getElementById('pf_name').value.trim();
+  if(!name){ toast('Product name required'); return; }
+  db.products.push({id:uid(), name, sku:document.getElementById('pf_sku').value, unit:document.getElementById('pf_unit').value||'pcs',
+    prodCost:Number(document.getElementById('pf_cost').value||0), price:Number(document.getElementById('pf_price').value||0),
+    stock:Number(document.getElementById('pf_stock').value||0), minStock:Number(document.getElementById('pf_min').value||0)});
+  save(); toast('Product added'); render();
+}
+
+// ---------- Materials ----------
+function viewMaterials(){
+  return `<div class="panel"><h3>Add Raw Material</h3>
+  <div class="row">
+    <div><label>Material Name</label><input id="mf_name"></div>
+    <div><label>Unit</label><input id="mf_unit" value="kg"></div>
+    <div><label>Current Qty</label><input id="mf_qty" type="number"></div>
+    <div><label>Min Stock</label><input id="mf_min" type="number"></div>
+    <div><label>Cost / Unit</label><input id="mf_cost" type="number"></div>
+    <div><label>Supplier</label><input id="mf_sup"></div>
+  </div>
+  <div style="margin-top:12px"><button class="btn" onclick="addMaterial()">Save Material</button></div>
+  </div>
+  <div class="panel"><h3>Raw Materials (${db.materials.length})</h3>
+  ${db.materials.length===0?`<div class="empty">No Raw Materials Yet</div>`:
+  `<div class="tblwrap"><table><tr><th>Material</th><th>Qty</th><th>Cost/Unit</th><th>Supplier</th></tr>
+  ${db.materials.map(mt=>`<tr><td>${mt.name}</td><td>${mt.qty} ${mt.unit} ${mt.qty<=mt.minStock?'<span class="badge low">Low</span>':''}</td><td>${fmt(mt.costPerUnit)}</td><td>${mt.supplier||'-'}</td></tr>`).join('')}
+  </table></div>`}</div>`;
+}
+function addMaterial(){
+  const name=document.getElementById('mf_name').value.trim();
+  if(!name){ toast('Material name required'); return; }
+  db.materials.push({id:uid(), name, unit:document.getElementById('mf_unit').value||'kg', qty:Number(document.getElementById('mf_qty').value||0),
+    minStock:Number(document.getElementById('mf_min').value||0), costPerUnit:Number(document.getElementById('mf_cost').value||0), supplier:document.getElementById('mf_sup').value});
+  save(); toast('Material added'); render();
+}
+
+// ---------- Production ----------
+let prodMatRows=[{materialId:'', qty:0}];
+function viewProduction(){
+  const rowsHtml = prodMatRows.map((r,i)=>`<div class="itemrow">
+    <div><label>Material</label><select onchange="prodMatRows[${i}].materialId=this.value">
+      <option value="">Select</option>${db.materials.map(mt=>`<option value="${mt.id}" ${r.materialId===mt.id?'selected':''}>${mt.name} (${mt.qty} ${mt.unit})</option>`).join('')}
+    </select></div>
+    <div><label>Qty Used</label><input type="number" value="${r.qty}" oninput="prodMatRows[${i}].qty=Number(this.value)"></div>
+    <div></div><div></div>
+    <div><button class="small" onclick="prodMatRows.splice(${i},1); render()">✕</button></div>
+  </div>`).join('');
+  return `<div class="panel"><h3>New Production Batch</h3>
+  <div class="row">
+    <div><label>Product</label><select id="prf_product">${db.products.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
+    <div><label>Production Date</label><input id="prf_date" type="date" value="${today()}"></div>
+    <div><label>Actual Qty Produced</label><input id="prf_qty" type="number"></div>
+    <div><label>Other Expenses (labour etc.)</label><input id="prf_other" type="number" value="0"></div>
+  </div>
+  <h3 style="margin-top:16px;font-size:15px">Raw Materials Used</h3>
+  ${rowsHtml}
+  <button class="small" onclick="prodMatRows.push({materialId:'',qty:0}); render()">+ Add Material</button>
+  <div style="margin-top:14px"><button class="btn thread" onclick="runProduction()">🏭 Complete Production</button></div>
+  </div>
+  <div class="panel"><h3>Production History (${db.production.length})</h3>
+  ${db.production.length===0?`<div class="empty">No Production Records<br>Create a production batch.</div>`:
+  `<div class="tblwrap"><table><tr><th>Date</th><th>Product</th><th>Qty</th><th>Total Cost</th><th>Cost/Piece</th></tr>
+  ${db.production.slice().reverse().map(pr=>`<tr><td>${pr.date}</td><td>${productName(pr.productId)}</td><td>${pr.actualQty}</td><td>${fmt(pr.totalCost)}</td><td>${fmt(pr.costPerPiece)}</td></tr>`).join('')}
+  </table></div>`}</div>`;
+}
+function productName(id){ const p=db.products.find(x=>x.id===id); return p?p.name:'-'; }
+function runProduction(){
+  const productId=document.getElementById('prf_product').value;
+  const date=document.getElementById('prf_date').value||today();
+  const actualQty=Number(document.getElementById('prf_qty').value||0);
+  const other=Number(document.getElementById('prf_other').value||0);
+  if(!productId||actualQty<=0){ toast('Select product and valid quantity'); return; }
+  const usedRows = prodMatRows.filter(r=>r.materialId && r.qty>0);
+  for(const r of usedRows){ const mt=db.materials.find(x=>x.id===r.materialId);
+    if(!mt || mt.qty<r.qty){ toast('Insufficient material: '+(mt?mt.name:'')); return; } }
+  let matCost=0;
+  usedRows.forEach(r=>{ const mt=db.materials.find(x=>x.id===r.materialId); mt.qty-=r.qty; matCost+=r.qty*mt.costPerUnit; });
+  const totalCost = matCost + other;
+  const costPerPiece = totalCost/actualQty;
+  const product = db.products.find(p=>p.id===productId);
+  product.stock += actualQty; product.prodCost = Math.round(costPerPiece*100)/100;
+  db.production.push({id:uid(), date, productId, actualQty, materialsUsed:usedRows, otherExpenses:other, totalCost, costPerPiece});
+  prodMatRows=[{materialId:'',qty:0}];
+  save(); toast('Production completed — stock updated'); render();
+}
+
+// ---------- Orders ----------
+let orderItemRows=[{productId:'', qty:0, price:0, discount:0}];
+function viewOrders(){
+  const rowsHtml = orderItemRows.map((r,i)=>{
+    const p = db.products.find(x=>x.id===r.productId);
+    return `<div class="itemrow">
+    <div><label>Product</label><select onchange="orderItemRows[${i}].productId=this.value; orderItemRows[${i}].price=(db.products.find(p=>p.id===this.value)||{}).price||0; render()">
+      <option value="">Select</option>${db.products.map(p=>`<option value="${p.id}" ${r.productId===p.id?'selected':''}>${p.name} (${p.stock} stk)</option>`).join('')}
+    </select></div>
+    <div><label>Qty</label><input type="number" value="${r.qty}" oninput="orderItemRows[${i}].qty=Number(this.value)"></div>
+    <div><label>Price</label><input type="number" value="${r.price}" oninput="orderItemRows[${i}].price=Number(this.value)"></div>
+    <div><label>Discount</label><input type="number" value="${r.discount}" oninput="orderItemRows[${i}].discount=Number(this.value)"></div>
+    <div><button class="small" onclick="orderItemRows.splice(${i},1); render()">✕</button></div>
+  </div>`;}).join('');
+  return `<div class="panel"><h3>New Wholesale Order</h3>
+  <div class="row">
+    <div><label>Customer</label><select id="of_cust">${db.customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
+    <div><label>Order Date</label><input id="of_date" type="date" value="${today()}"></div>
+    <div><label>Expected Delivery</label><input id="of_delivery" type="date"></div>
+    <div><label>Transport Charge</label><input id="of_transport" type="number" value="0"></div>
+    <div><label>Other Charges</label><input id="of_other" type="number" value="0"></div>
+    <div><label>Overall Discount</label><input id="of_discount" type="number" value="0"></div>
+    <div><label>Advance Paid</label><input id="of_advance" type="number" value="0"></div>
+  </div>
+  <h3 style="margin-top:16px;font-size:15px">Items</h3>
+  ${rowsHtml}
+  <button class="small" onclick="orderItemRows.push({productId:'',qty:0,price:0,discount:0}); render()">+ Add Product</button>
+  <div style="margin-top:14px"><button class="btn" onclick="createOrder()">🧾 Save Order</button></div>
+  </div>
+  <div class="panel"><h3>Orders (${db.orders.length})</h3>
+  ${db.orders.length===0?`<div class="empty">No Orders Yet<br>Create your first wholesale order.</div>`:
+  `<div class="tblwrap"><table><tr><th>Customer</th><th>Date</th><th>Total</th><th>Profit</th><th>Status</th></tr>
+  ${db.orders.slice().reverse().map(o=>`<tr><td>${custName(o.customerId)}</td><td>${o.date}</td><td>${fmt(orderGrandTotal(o))}</td><td>${fmt(orderProfit(o))}</td>
+  <td><select onchange="updateStatus('${o.id}',this.value)">${['Draft','Confirmed','Production Required','Ready','Out for Delivery','Delivered','Cancelled'].map(s=>`<option ${o.status===s?'selected':''}>${s}</option>`).join('')}</select></td></tr>`).join('')}
+  </table></div>`}</div>`;
+}
+function custName(id){ const c=db.customers.find(x=>x.id===id); return c?c.name:'-'; }
+function updateStatus(id,val){ const o=db.orders.find(x=>x.id===id); o.status=val; save(); toast('Status updated: '+val); }
+function createOrder(){
+  const customerId=document.getElementById('of_cust').value;
+  const items = orderItemRows.filter(r=>r.productId && r.qty>0);
+  if(!customerId||items.length===0){ toast('Select customer and at least one product'); return; }
+  for(const it of items){ const p=db.products.find(x=>x.id===it.productId);
+    if(p.stock<it.qty) toast('Note: '+p.name+' shortage — production may be required'); }
+  const order={id:uid(), customerId, date:document.getElementById('of_date').value||today(),
+    deliveryDate:document.getElementById('of_delivery').value, items,
+    transport:Number(document.getElementById('of_transport').value||0),
+    otherCharges:Number(document.getElementById('of_other').value||0),
+    discount:Number(document.getElementById('of_discount').value||0),
+    paid:Number(document.getElementById('of_advance').value||0), status:'Confirmed'};
+  items.forEach(it=>{ const p=db.products.find(x=>x.id===it.productId); p.stock=Math.max(0,p.stock-it.qty); });
+  db.orders.push(order); orderItemRows=[{productId:'',qty:0,price:0,discount:0}];
+  save(); toast('Order saved'); render();
+}
+
+// ---------- Expenses ----------
+function viewExpenses(){
+  return `<div class="panel"><h3>Add Expense</h3>
+  <div class="row">
+    <div><label>Date</label><input id="ef_date" type="date" value="${today()}"></div>
+    <div><label>Category</label><select id="ef_cat">${['Raw Material','Labour','Electricity','Transport','Packaging','Machine Maintenance','Rent','Salary','Marketing','Other'].map(c=>`<option>${c}</option>`).join('')}</select></div>
+    <div><label>Description</label><input id="ef_desc"></div>
+    <div><label>Amount</label><input id="ef_amt" type="number"></div>
+  </div>
+  <div style="margin-top:12px"><button class="btn thread" onclick="addExpense()">Save Expense</button></div>
+  </div>
+  <div class="panel"><h3>Expenses (${db.expenses.length})</h3>
+  ${db.expenses.length===0?`<div class="empty">No Expenses<br>Add your first business expense.</div>`:
+  `<div class="tblwrap"><table><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th></tr>
+  ${db.expenses.slice().reverse().map(e=>`<tr><td>${e.date}</td><td>${e.category}</td><td>${e.description||'-'}</td><td>${fmt(e.amount)}</td></tr>`).join('')}
+  </table></div>`}</div>`;
+}
+function addExpense(){
+  const amt=Number(document.getElementById('ef_amt').value||0);
+  if(amt<=0){ toast('Enter a valid amount'); return; }
+  db.expenses.push({id:uid(), date:document.getElementById('ef_date').value||today(), category:document.getElementById('ef_cat').value,
+    description:document.getElementById('ef_desc').value, amount:amt});
+  save(); toast('Expense recorded'); render();
+}
+
+// ---------- Backup & Restore ----------
+function counts(){
+  return {Customers:db.customers.length, Products:db.products.length, 'Raw Materials':db.materials.length,
+    'Production Batches':db.production.length, Orders:db.orders.length, Expenses:db.expenses.length};
+}
+function viewBackup(){
+  const c = counts();
+  return `<div class="panel"><h3>Export Backup</h3>
+  <p style="color:var(--muted);font-size:13.5px;margin-top:0">Download everything — customers, products, raw materials, production, orders, expenses and settings — as one file you can keep safe or move to another device.</p>
+  <div class="tblwrap"><table>${Object.entries(c).map(([k,v])=>`<tr><td>${k}</td><td>${v} records</td></tr>`).join('')}</table></div>
+  <div style="margin-top:12px"><button class="btn" onclick="exportBackup()">⬇ Download Backup (.json)</button></div>
+  </div>
+  <div class="panel"><h3>Restore Backup</h3>
+  <p style="color:var(--muted);font-size:13.5px;margin-top:0">Restoring replaces all current data in this browser with the data from the backup file. This cannot be undone.</p>
+  <input type="file" id="bf_file" accept="application/json">
+  <div style="margin-top:12px"><button class="btn thread" onclick="restoreBackup()">⬆ Restore from File</button></div>
+  </div>
+  <div class="panel"><h3>Clear All Data</h3>
+  <p style="color:var(--muted);font-size:13.5px;margin-top:0">Erases every customer, product, material, order and expense in this browser and starts fresh, empty.</p>
+  <button class="btn ghost" onclick="resetDemo()">Clear All Data</button>
+  </div>`;
+}
+function exportBackup(){
+  const payload = {app:'La Soft — Handkerchief BMS', exportedAt:new Date().toISOString(), data:db};
+  const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'lasoft-bms-backup-'+today()+'.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Backup downloaded');
+}
+function restoreBackup(){
+  const f = document.getElementById('bf_file').files[0];
+  if(!f){ toast('Choose a backup file first'); return; }
+  if(!confirm('This will replace ALL current data with the backup file. Continue?')) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const parsed = JSON.parse(reader.result);
+      const incoming = parsed.data || parsed;
+      if(!incoming.customers || !incoming.products){ toast('Invalid backup file'); return; }
+      db = incoming; save(); toast('Backup restored'); setTab('dashboard');
+    }catch(err){ toast('Could not read file — invalid JSON'); }
+  };
+  reader.readAsText(f);
+}
+function resetDemo(){
+  if(!confirm('This permanently erases all current data. Continue?')) return;
+  db = seed(); save(); toast('All data cleared'); setTab('dashboard');
+}
+
+// ---------- theme ----------
+const THEME_ORDER=['','light','dark'];
+const THEME_ICON={'':'🌓', light:'☀️', dark:'🌙'};
+let currentTheme = localStorage.getItem('crony_theme') || '';
+document.documentElement.setAttribute('data-theme', currentTheme);
+function updateThemeIcon(){ document.getElementById('themeBtn').textContent = THEME_ICON[currentTheme]; }
+function cycleTheme(){
+  currentTheme = THEME_ORDER[(THEME_ORDER.indexOf(currentTheme)+1)%THEME_ORDER.length];
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  localStorage.setItem('crony_theme', currentTheme);
+  updateThemeIcon();
+}
+updateThemeIcon();
+
+render();
+</script>
+</body>
+</html>
